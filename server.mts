@@ -14,18 +14,16 @@ app.prepare().then(() => {
   const io = new Server(httpServer);
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    console.log(`User connected: ${socket.id}`);
 
-    // 클라이언트에서 메시지 받기
-    socket.on("message", (data) => {
-      console.log("Message received:", data);
-      // 모든 클라이언트에게 메시지 브로드캐스트
-      io.emit("message", data);
+    socket.on("join-room", ({ room, username }) => {
+      socket.join(room);
+      console.log(`User ${username} joined room ${room}`);
+      socket.to(room).emit("user_joined", `${username} joined room`);
     });
 
-    // 유저 연결 해제
     socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
+      console.log(`User disconnected: ${socket.id}`);
     });
   });
 
