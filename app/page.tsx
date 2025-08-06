@@ -1,8 +1,8 @@
 "use client";
 import ChatForm from "@/components/ChatForm";
 import ChatMessage from "@/components/ChatMessage";
-import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { socket } from "@/lib/socetClient";
 
 export default function Home() {
   const [room, setRoom] = useState("");
@@ -13,9 +13,24 @@ export default function Home() {
       message: string;
     }[]
   >([]);
+
   const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    socket.on("user_joined", (message) => {
+      setMessages((prev) => [...prev, { sender: "system", message }]);
+    });
+
+    return () => {
+      socket.off("user_joined");
+      socket.off("message");
+    };
+  }, []);
   const handleJoinRoom = () => {
-    setJoined(true);
+    if (room && userName) {
+      socket.emit("join-room", { room, username: userName });
+      setJoined(true);
+    }
   };
   const handleSendMessage = (message: string) => {
     console.log(message);

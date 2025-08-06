@@ -14,7 +14,7 @@ app.prepare().then(() => {
   const io = new Server(httpServer);
 
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.id}`);
+    console.log(`: ${socket.id}`);
 
     socket.on("join-room", ({ room, username }) => {
       socket.join(room);
