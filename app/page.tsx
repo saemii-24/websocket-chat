@@ -17,6 +17,10 @@ export default function Home() {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
+    socket.on("message", (data) => {
+      setMessages((prev) => [...prev, data]);
+    });
+
     socket.on("user_joined", (message) => {
       setMessages((prev) => [...prev, { sender: "system", message }]);
     });
@@ -33,7 +37,9 @@ export default function Home() {
     }
   };
   const handleSendMessage = (message: string) => {
-    console.log(message);
+    const data = { room, message, sender: userName };
+    setMessages((prev) => [...prev, { sender: userName, message }]);
+    socket.emit("message", data);
   };
 
   return (
