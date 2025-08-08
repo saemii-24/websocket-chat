@@ -2,7 +2,7 @@
 import ChatForm from "@/components/ChatForm";
 import ChatMessage from "@/components/ChatMessage";
 import { useEffect, useState } from "react";
-import { socket } from "@/lib/socetClient";
+import { socket } from "@/lib/socketClient";
 
 export default function Home() {
   const [room, setRoom] = useState("");
