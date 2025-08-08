@@ -5,41 +5,58 @@ import { useEffect, useState } from "react";
 import { socket } from "@/lib/socketClient";
 
 export default function Home() {
+  // 채팅방 이름
   const [room, setRoom] = useState("");
+
+  // 방에 들어갔는지 체크
   const [joined, setJoined] = useState(false);
+
+  // 채팅 메시지들 저장소
   const [messages, setMessages] = useState<
     {
       sender: string;
       message: string;
     }[]
   >([]);
-
+  // 내 닉네임
   const [userName, setUserName] = useState("");
 
+  // 페이지 로드될 때 한 번만 실행
   useEffect(() => {
+    // 서버에서 보내주는 정보 받음 (socket.on)
+    // 누군가 메시지 보내면 → 내 화면에 추가
     socket.on("message", (data) => {
       setMessages((prev) => [...prev, data]);
     });
 
+    // 서버에서 보내주는 정보 받음 (socket.on)
+    // 누군가 방에 들어오면 → "XXX님 입장" 메시지 추가
     socket.on("user_joined", (message) => {
       setMessages((prev) => [...prev, { sender: "system", message }]);
     });
 
+    // 페이지 떠날 때 → 소켓 연결 정리
     return () => {
       socket.off("user_joined");
       socket.off("message");
     };
   }, []);
+
+  // "입장하기" 버튼 클릭했을 때
   const handleJoinRoom = () => {
     if (room && userName) {
+      //정보 받아서 서버에 전송해줌 (socket.emit)
       socket.emit("join-room", { room, username: userName });
-      setJoined(true);
+      setJoined(true); // 입장 완료 표시
     }
   };
+
+  // 메시지 "전송" 버튼 클릭했을 때
   const handleSendMessage = (message: string) => {
     const data = { room, message, sender: userName };
-    setMessages((prev) => [...prev, { sender: userName, message }]);
-    socket.emit("message", data);
+
+    setMessages((prev) => [...prev, { sender: userName, message }]); // 내 메시지 바로 보여주기
+    socket.emit("message", data); // 서버야! 이 메시지 다른 사람들한테도 보내줘
   };
 
   return (
